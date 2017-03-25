@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	#div1 { width: 100px; height: 100px; background: red; position: absolute; }
+	#div2 { width: 100px; height: 100px; background: green; position: absolute; top: 120px;}
+	</style>
+	<script src="drag.js"></script>
+	<script>
+
+
+window.onload = function(){
+	var d1 = new Drag('div1');
+	d1.go();
+	var d2 = new LimitDrag('div2');
+	d2.go();
+}		
+
+function Drag(id){
+	this.oDiv = document.getElementById(id);
+	this.disX = 0;
+	this.disY = 0;
+}
+Drag.prototype.go = function(){
+	var This = this;
+	this.oDiv.onmousedown = function(ev){
+		var ev = ev || window.event;
+		This.fnDown(ev);
+		
+		return false;
+	};
+}
+Drag.prototype.fnDown = function(ev){
+	var This = this;
+	this.disX = ev.clientX - this.oDiv.offsetLeft;
+	this.disY = ev.clientY - this.oDiv.offsetTop;
+	document.onmousemove = function(ev){
+		var ev = ev || window.event;
+		This.fnMove(ev);
+	};
+	document.onmouseup = this.fnUp;
+	
+}
+Drag.prototype.fnMove = function(ev){
+	
+	this.oDiv.style.left = ev.clientX - this.disX + 'px';
+	this.oDiv.style.top = ev.clientY - this.disY + 'px';
+}
+Drag.prototype.fnUp = function(){
+	document.onmousemove = null;
+}
+
+
+function LimitDrag(id){
+	Drag.call(this,id);
+
+}
+
+for(var i in Drag.prototype){
+	LimitDrag.prototype[i] = Drag.prototype[i];
+}
+
+LimitDrag.prototype.fnMove = function(ev){
+	var L = ev.clientX - this.disX;
+	var T = ev.clientY - this.disY;
+	if(L<0){
+		L = 0;
+	}
+	else if(L>document.documentElement.clientWidth-this.oDiv.offsetWidth){
+		L = document.documentElement.clientWidth-this.oDiv.offsetWidth;
+	}
+	if(T<0){
+		T = 0;
+	}
+	else if(T>document.documentElement.clientHeight-this.oDiv.offsetHeight){
+		T=document.documentElement.clientHeight-this.oDiv.offsetHeight;
+	}
+	this.oDiv.style.left = L + 'px';
+	this.oDiv.style.top = T + 'px';
+}
+
+
+	</script>
+</head>
+<body>
+	<div id="div1">4565465</div>
+	<div id="div2">4565465</div>
+</body>
+</html>
